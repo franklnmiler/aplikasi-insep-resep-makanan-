@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gambar6"
     android:orientation="vertical"
-    android:gravity="center"
-    android:padding="16dp">
+    android:background="@drawable/gambar67"
+    android:padding="16dp"
+    android:gravity="center_horizontal">
 
-    <!-- TextView to display device information -->
+
     <TextView
         android:id="@+id/deviceInfo"
         android:layout_width="match_parent"
@@ -19,40 +20,44 @@
         android:textSize="19sp"
         android:visibility="gone" />
 
-    <!-- ImageView to display an image -->
-
-    <!-- Button to continue -->
-    <ImageView
-        android:id="@+id/centerImage"
-        android:layout_width="114dp"
-        android:layout_height="91dp"
-        android:layout_marginBottom="16dp"
-        android:contentDescription="Gambar tengah"
-        android:src="@drawable/burger" />
-
-    <Button
-        android:id="@+id/btnSaveDevice"
+    ```
+    <!-- Spacer untuk memberikan ruang di atas -->
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Lanjut"
-        android:textStyle="bold"
-        android:background="@drawable/button_register_background"
-        android:backgroundTint="#F84137"
-        android:textColor="#FFFFFF"
-        android:elevation="8dp"
-        android:layout_marginBottom="32dp" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical" />
 
-    <!-- Aesthetic Text -->
+    <!-- Teks mirip seperti di gambar -->
     <TextView
         android:id="@+id/aestheticText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginBottom="12dp"
+        android:text="Racik Makanan Sesuka Hati Di sini"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        android:fontFamily="sans-serif-medium"
         android:gravity="center"
-        android:paddingHorizontal="24dp"
-        android:text="Nikmati setiap gigitan dengan rasa yang istimewa!"
-        android:textColor="#5F4816"
-        android:textSize="20sp"
-        android:textStyle="bold|italic" />
+        android:textStyle="bold"
+        android:shadowColor="#66000000"
+        android:shadowDx="2"
+        android:shadowDy="44"
+        android:shadowRadius="44" />
+
+    <!-- Tombol transparan sebagian -->
+    <Button
+        android:id="@+id/btnSaveDevice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Get Started"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:elevation="8dp"
+        android:fontFamily="sans-serif-medium"
+        android:layout_marginBottom="32dp"
+        android:backgroundTint="#CCF84137"
+        android:background="@drawable/button_register_background" />
+    ```
 
 </LinearLayout>

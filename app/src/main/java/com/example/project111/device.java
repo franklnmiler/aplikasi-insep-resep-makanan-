@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -48,15 +49,17 @@ public class device extends AppCompatActivity {
         deviceDetails = new StringBuilder();
         database = FirebaseDatabase.getInstance().getReference("users");
 
-        // Ambil username dari Intent
-        String username = getIntent().getStringExtra("username");
-        if (username == null || username.isEmpty()) {
-            Toast.makeText(this, "Username tidak ditemukan!", Toast.LENGTH_SHORT).show();
-            finish();
+        // Retrieve userId from SharedPreferences (which is saved during login)
+        SharedPreferences preferences = getSharedPreferences("UserData", MODE_PRIVATE);
+        String userId = preferences.getString("userId", null);
+
+        if (userId == null) {
+            Toast.makeText(this, "User not logged in!", Toast.LENGTH_SHORT).show();
+            finish(); // Close activity if no userId found
             return;
         }
 
-        // Informasi Perangkat Dasar
+        // Add device details to StringBuilder
         deviceDetails.append("Model: ").append(Build.MODEL).append("\n")
                 .append("Brand: ").append(Build.BRAND).append("\n")
                 .append("Product: ").append(Build.PRODUCT).append("\n")
@@ -69,19 +72,19 @@ public class device extends AppCompatActivity {
         activityManager.getMemoryInfo(memoryInfo);
         deviceDetails.append("Total RAM: ").append(memoryInfo.totalMem / (1024 * 1024)).append(" MB\n");
 
-        // Penyimpanan
+        // Storage
         StatFs statFs = new StatFs(Environment.getExternalStorageDirectory().getPath());
         long totalStorage = statFs.getTotalBytes() / (1024 * 1024);
         long availableStorage = statFs.getAvailableBytes() / (1024 * 1024);
         deviceDetails.append("Total Storage: ").append(totalStorage).append(" MB\n")
                 .append("Available Storage: ").append(availableStorage).append(" MB\n");
 
-        // Jaringan Seluler
+        // Mobile Network
         TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         String networkOperatorName = telephonyManager.getNetworkOperatorName();
         deviceDetails.append("Mobile Network: ").append(networkOperatorName).append("\n");
 
-        // Jaringan Wi-Fi
+        // WiFi Network
         String wifiSSID = "Not Connected";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             wifiSSID = getApplicationContext().getSystemService(android.net.wifi.WifiManager.class)
@@ -89,47 +92,47 @@ public class device extends AppCompatActivity {
         }
         deviceDetails.append("WiFi SSID: ").append(wifiSSID).append("\n");
 
-        // Alamat IP
+        // IP Address
         String ipAddress = getIPAddress();
         deviceDetails.append("IP Address: ").append(ipAddress).append("\n");
 
-        // Status Baterai
+        // Battery Status
         BatteryManager batteryManager = (BatteryManager) getSystemService(Context.BATTERY_SERVICE);
         int batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
         deviceDetails.append("Battery Level: ").append(batteryLevel).append("%\n");
 
-        // Lokasi
+        // Location Info
         getLocation();
         deviceDetails.append("Location: ").append(locationInfo).append("\n");
 
-        // Suhu Perangkat
+        // Device Temperature
         float deviceTemp = getDeviceTemperature();
         deviceDetails.append("Device Temperature: ").append(deviceTemp).append("°C\n");
 
-        // Sistem Chipset
+        // Chipset
         String chipset = Build.HARDWARE;
         deviceDetails.append("Chipset: ").append(chipset).append("\n");
 
-        // Tampilkan Informasi
+        // Display Device Info
         deviceInfo.setText(deviceDetails.toString());
 
-        // Tombol Save - gabungkan fungsi simpan dan pindah aktivitas
+        // Save device info to Firebase when save button is clicked
         btnSaveDevice.setOnClickListener(view -> {
-            saveDeviceInfoToDatabase(username);  // Simpan ke database
-            Intent mainIntent = new Intent(device.this, MainActivity.class);  // Intent ke MainActivity
-            startActivity(mainIntent);  // Mulai aktivitas baru
-            finish();  // Tutup aktivitas ini agar tidak kembali ke sini
+            saveDeviceInfoToDatabase(userId);  // Save to database
+            Intent mainIntent = new Intent(device.this, MainActivity.class);  // Intent to MainActivity
+            startActivity(mainIntent);  // Start activity
+            finish();  // Finish current activity
         });
     }
 
-    private void saveDeviceInfoToDatabase(String username) {
-        if (username == null || username.isEmpty()) {
-            Toast.makeText(this, "Username is required to save device info!", Toast.LENGTH_SHORT).show();
+    private void saveDeviceInfoToDatabase(String userId) {
+        if (userId == null || userId.isEmpty()) {
+            Toast.makeText(this, "UserId is required to save device info!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Menyimpan informasi perangkat ke Firebase dengan path yang sesuai dengan username
-        database.child(username).child("device_info").setValue(deviceDetails.toString())
+        // Save device info to Firebase under the correct userId path
+        database.child(userId).child("device_info").setValue(deviceDetails.toString())
                 .addOnSuccessListener(aVoid -> Toast.makeText(this, "Device info saved!", Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e -> Toast.makeText(this, "Failed to save device info.", Toast.LENGTH_SHORT).show());
     }
@@ -155,16 +158,13 @@ public class device extends AppCompatActivity {
         }
 
         @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-        }
+        public void onStatusChanged(String provider, int status, Bundle extras) {}
 
         @Override
-        public void onProviderEnabled(@NonNull String provider) {
-        }
+        public void onProviderEnabled(@NonNull String provider) {}
 
         @Override
-        public void onProviderDisabled(@NonNull String provider) {
-        }
+        public void onProviderDisabled(@NonNull String provider) {}
     };
 
     @Override

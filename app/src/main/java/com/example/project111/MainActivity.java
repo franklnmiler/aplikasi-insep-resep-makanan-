@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,11 +19,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
+import android.view.View;
 
-import java.util.ArrayList;
-import java.util.List;
+
+import java.util.ArrayList; import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,12 +38,15 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText searchBar;
     private Button camilanButton, kueButton, masakanButton, kulinerButton, minumanButton;
-    private ImageView profileSmallIcon;
-    private TextView usernameText;
+    private ImageView profileSmallIcon, friendSearchIcon, notificationIcon;
+    private TextView usernameText, notificationBadge;
 
     private Button activeCategoryButton = null;
     private String activeCategory = null;
     private TextWatcher searchWatcher;
+
+    private int currentRecipeCount = 0;
+    private boolean initialLoadDone = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +59,9 @@ public class MainActivity extends AppCompatActivity {
         loadDataFromFirebase();
         setupSearchBar();
         setupCategoryButtons();
+        setupFriendSearch();
+        setupBottomNavigation();
+        setupNotificationListener();
     }
 
     private void initUI() {
@@ -64,6 +74,9 @@ public class MainActivity extends AppCompatActivity {
         minumanButton = findViewById(R.id.MinumanButton);
         profileSmallIcon = findViewById(R.id.profileSmallIcon);
         usernameText = findViewById(R.id.usernameText);
+        friendSearchIcon = findViewById(R.id.friendSearchIcon);
+        notificationIcon = findViewById(R.id.notificationIcon);
+        notificationBadge = findViewById(R.id.notificationBadge);
     }
 
     private void setupRecyclerView() {
@@ -84,23 +97,71 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void setupBottomNavigation() {
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.nav_menu);
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.nav_menu) {
+                return true;
+            } else if (itemId == R.id.nav_search) {
+                startActivity(new Intent(MainActivity.this, TemanActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+            } else if (itemId == R.id.nav_profile) {
+                startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+            }
+            return false;
+        });
+    }
+
     private void loadUserProfile() {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         SharedPreferences prefs = getSharedPreferences("UserData", MODE_PRIVATE);
-        String username = prefs.getString("username", "Guest");
-        String photoUrl = prefs.getString("profileImage", null);
+        String username = prefs.getString("username", null);
+
+        if (username == null) {
+            usernameText.setText("Halo, Guest");
+            profileSmallIcon.setImageResource(R.drawable.ic_eye);
+            return;
+        }
 
         usernameText.setText("Halo, " + username);
 
-        if (photoUrl != null && !photoUrl.isEmpty()) {
-            Glide.with(this)
-                    .load(photoUrl)
-                    .placeholder(R.drawable.ic_eye)
-                    .error(R.drawable.ic_eye)
-                    .circleCrop()
-                    .into(profileSmallIcon);
-        } else {
-            profileSmallIcon.setImageResource(R.drawable.ic_eye);
-        }
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String profileImageUrl = snapshot.child("profileImage").getValue(String.class);
+
+                    if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+                        Glide.with(MainActivity.this)
+                                .load(profileImageUrl)
+                                .placeholder(R.drawable.ic_favorit)
+                                .error(R.drawable.ic_eye)
+                                .circleCrop()
+                                .into(profileSmallIcon);
+                    } else {
+                        profileSmallIcon.setImageResource(R.drawable.ic_favorit);
+                    }
+
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString("profileImage", profileImageUrl != null ? profileImageUrl : "");
+                    editor.apply();
+                } else {
+                    profileSmallIcon.setImageResource(R.drawable.ic_eye);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(MainActivity.this, "Gagal memuat profil", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         profileSmallIcon.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
@@ -110,7 +171,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadDataFromFirebase() {
         databaseRef = FirebaseDatabase.getInstance().getReference("recipes");
-        databaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+        databaseRef.orderByChild("timestamp").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 recipeList.clear();
@@ -123,6 +185,10 @@ public class MainActivity extends AppCompatActivity {
                         fullRecipeList.add(recipe);
                     }
                 }
+
+                recipeList.sort((r1, r2) -> Long.compare(r2.getTimestamp(), r1.getTimestamp()));
+                fullRecipeList.sort((r1, r2) -> Long.compare(r2.getTimestamp(), r1.getTimestamp()));
+
                 adapter.updateList(new ArrayList<>(recipeList));
 
                 recyclerView.postDelayed(() -> {
@@ -135,15 +201,20 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                // Error handling
+                Toast.makeText(MainActivity.this, "Gagal memuat data resep", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void setupSearchBar() {
         searchWatcher = new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void afterTextChanged(Editable s) {}
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -222,5 +293,56 @@ public class MainActivity extends AppCompatActivity {
             activeCategoryButton = null;
         }
         activeCategory = null;
+    }
+
+    private void setupFriendSearch() {
+        friendSearchIcon.setOnClickListener(v -> {
+            // Intent untuk membuka ChatListActivity
+            Intent intent = new Intent(MainActivity.this, ChatListActivity.class);
+            startActivity(intent);
+        });
+    }
+
+
+    private void setupNotificationListener() {
+        databaseRef = FirebaseDatabase.getInstance().getReference("recipes");
+
+        databaseRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                int newCount = (int) snapshot.getChildrenCount();
+
+                if (initialLoadDone) {
+                    if (newCount > currentRecipeCount) {
+                        int newItems = newCount - currentRecipeCount;
+                        showNotificationBadge(newItems);
+                    }
+                } else {
+                    initialLoadDone = true;
+                }
+
+                currentRecipeCount = newCount;
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(MainActivity.this, "Gagal memantau resep baru", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        notificationIcon.setOnClickListener(v -> {
+            hideNotificationBadge();
+            recyclerView.smoothScrollToPosition(0);
+        });
+    }
+
+    private void showNotificationBadge(int count) {
+        notificationBadge.setVisibility(View.VISIBLE);
+        notificationBadge.setText(String.valueOf(count));
+    }
+
+    private void hideNotificationBadge() {
+        notificationBadge.setVisibility(View.GONE);
+        notificationBadge.setText("0");
     }
 }

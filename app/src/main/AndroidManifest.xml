@@ -8,172 +8,99 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
-
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-        android:maxSdkVersion="28" />
-
-
+    <!-- Google Maps API Key -->
     <meta-data
         android:name="com.google.android.geo.API_KEY"
-        android:value="YOUR_API_KEY" />
-
+        android:value="YOUR_API_KEY" /> <!-- Ganti dengan API Key asli -->
 
     <application
         android:name=".MyApplication"
-        android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:allowBackup="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.Project111"
-
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         tools:targetApi="31">
 
+        <!-- ========== MQTT Service Configuration ========== -->
+        <service
+            android:name="org.eclipse.paho.android.service.MqttService"
+            android:exported="false" />
+
+        <receiver
+            android:name="org.eclipse.paho.android.service.NetworkConnectionReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="org.eclipse.paho.android.service.AlarmPingSender$AlarmReceiver"
+            android:exported="false" />
+
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+        <!-- ========== End MQTT Configuration ========== -->
 
 
 
         <!-- Activities -->
-        <activity
-            android:name=".ProfileActivity"
-            android:exported="false" />
+        <activity android:name=".ProfileActivity" android:exported="false" />
+        <activity android:name=".rotigandum" android:exported="false" />
+        <activity android:name=".susu_gandum" android:exported="false" />
+        <activity android:name=".resep_rendang" android:exported="false" />
+        <activity android:name=".resep_burger" android:exported="false" />
+        <activity android:name=".satepadang" android:exported="false" />
+        <activity android:name=".nasigoreng" android:exported="false" />
+        <activity android:name=".dimsum" android:exported="false" />
+        <activity android:name=".smoothie" android:exported="false" />
+        <activity android:name=".ayambowl" android:exported="false" />
+        <activity android:name=".tumis" android:exported="false" />
+        <activity android:name=".capcay" android:exported="false" />
+        <activity android:name=".OtpActivity" android:exported="false" />
+        <activity android:name=".streetboba" android:exported="false" />
+        <activity android:name=".bolulapis" android:exported="false" />
+        <activity android:name=".device" android:exported="false" />
+        <activity android:name=".register" android:exported="false" />
+        <activity android:name=".DetailRecipeActivity" android:exported="false" />
+        <activity android:name=".UserProfileActivity" android:exported="false" />
+        <activity android:name=".AddRecipeActivity" android:exported="false" />
+        <activity android:name=".TemanActivity" android:exported="false" />
+        <activity android:name=".Comment" android:exported="false" />
+        <activity android:name=".Reply" android:exported="false" />
+        <activity android:name=".MainActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity android:name=".ChatActivity" android:exported="false" />
+        <activity android:name=".VerifikasiActivity" android:exported="false" />
+        <activity android:name=".RiwayatActivity" android:exported="false" />
+        <activity android:name=".FavoriteRecipesActivity" android:exported="false" />
+        <activity android:name=".BantuanActivity" android:exported="false" />
+        <activity android:name=".EditRecipeActivity" android:exported="false" />
+        <activity android:name=".NotificationsActivity" android:exported="false" />
+        <activity android:name=".ChatListActivity" android:exported="false" />
 
-        <activity
-            android:name=".rotigandum"
-            android:exported="false" />
-
-        <activity
-            android:name=".susu_gandum"
-            android:exported="false" />
-
-        <activity
-            android:name=".resep_rendang"
-            android:exported="false" />
-
-        <activity
-            android:name=".resep_burger"
-            android:exported="false" />
-
-        <activity android:name=".satepadang"
-            android:exported="false"/>
-
-        <activity android:name=".nasigoreng"
-            android:exported="false"/>
-
-        <activity
-            android:name=".dimsum"
-            android:exported="false" />
-
-        <activity
-            android:name=".smoothie"
-            android:exported="false" />
-
-        <activity
-            android:name=".ayambowl"
-            android:exported="false" />
-
-        <activity
-            android:name=".tumis"
-            android:exported="false" />
-
-        <activity
-            android:name=".capcay"
-            android:exported="false" />
-
-
-
-        <activity
-            android:name=".streetboba"
-            android:exported="false" />
-
-        <activity
-            android:name=".bolulapis"
-            android:exported="false" />
-
-        <activity
-            android:name=".device"
-            android:exported="false" />
-
-        <activity
-            android:name=".login"
-            android:exported="true">
+        <!-- Launcher Activity -->
+        <activity android:name=".login" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".register"
-            android:exported="false" />
-
-        <activity android:name=".DetailRecipeActivity"
-            android:exported="false"/>
-
-
-
-
-        <activity
-            android:name=".AddRecipeActivity"
-            android:exported="false"/>
-
-
-
-
-        <activity
-            android:name=".Comment"
-            android:exported="false"/>
-
-
-
-
-        <activity
-            android:name=".Reply"
-            android:exported="false"/>
-
-
-        <activity
-            android:name=".MainActivity"
-            android:exported="false" />
-
-
-
-
-        <activity
-            android:name=".VerifikasiActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".RiwayatActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".FavoriteRecipesActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".BantuanActivity"
-            android:exported="false" />
-
-        <activity android:name=".EditRecipeActivity"
-        android:exported="false"/>
-
-
 
     </application>
 </manifest>

@@ -3,8 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".login">
+    tools:context=".register">
 
+    <!-- Background Image -->
     <ImageView
         android:id="@+id/myImageView1"
         android:layout_width="match_parent"
@@ -13,6 +14,13 @@
         android:src="@drawable/gambar5" />
 
 
+    <!-- Overlay hitam transparan -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#35000000" />
+
+    <!-- Main Form Container -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -20,6 +28,7 @@
         android:padding="16dp"
         android:background="@android:color/transparent">
 
+        <!-- Title Text -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -30,7 +39,7 @@
             android:textStyle="bold"
             android:textColor="@android:color/white" />
 
-
+        <!-- Username -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -55,16 +64,42 @@
             android:textStyle="bold"
             android:minHeight="48dp" />
 
+        <!-- Email -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="20dp"
+            android:text="Email"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#FFE6E6" />
 
+        <EditText
+            android:id="@+id/etemail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="25dp"
+            android:layout_marginTop="8dp"
+            android:drawableStart="@drawable/ic_eye"
+            android:drawablePadding="10dp"
+            android:paddingStart="16dp"
+            android:background="@drawable/edittext_background"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:textStyle="bold"
+            android:minHeight="48dp" />
+
+        <!-- Password -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="25dp"
             android:layout_marginTop="20dp"
             android:text="Password"
-            android:textColor="#FAE8E8"
             android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="#FFE6E6" />
 
         <EditText
             android:id="@+id/etpassword"
@@ -72,23 +107,22 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="25dp"
             android:layout_marginTop="8dp"
-            android:paddingStart="16dp"
-            android:background="@drawable/edittext_background"
             android:drawableStart="@drawable/password"
             android:drawablePadding="10dp"
+            android:paddingStart="16dp"
+            android:background="@drawable/edittext_background"
             android:hint="Password"
-            android:textStyle="bold"
             android:inputType="textPassword"
+            android:textStyle="bold"
             android:minHeight="48dp" />
 
-
-
+        <!-- Confirm Password -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="25dp"
             android:layout_marginTop="20dp"
-            android:text="konfirmasi password"
+            android:text="Konfirmasi Password"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="#FFE6E6" />
@@ -101,46 +135,23 @@
             android:layout_marginTop="8dp"
             android:paddingStart="16dp"
             android:background="@drawable/edittext_background"
-            android:hint="konfirmasi password"
+            android:hint="Konfirmasi Password"
+            android:inputType="textPassword"
             android:textStyle="bold"
             android:minHeight="48dp" />
 
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="20dp"
-            android:text="Nomor HP"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#FFE6E6" />
-
-        <EditText
-            android:id="@+id/etnomorhp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="25dp"
-            android:layout_marginTop="8dp"
-            android:drawableStart="@drawable/ic_baseline_smartphone_24"
-            android:hint="Nomor HP"
-            android:textStyle="bold"
-            android:paddingStart="16dp"
-            android:background="@drawable/edittext_background"
-            android:inputType="phone"
-            android:minHeight="48dp" />
-
-
+        <!-- Register Button -->
         <Button
             android:id="@+id/btnregister"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="@drawable/button_register_background"
             android:layout_marginTop="37dp"
             android:backgroundTint="#FF574B"
+            android:background="@drawable/button_register_background"
             android:textStyle="bold"
             android:text="Register" />
+
     </LinearLayout>
 
 </FrameLayout>

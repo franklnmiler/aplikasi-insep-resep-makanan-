@@ -1,4 +1,5 @@
 <resources>
+    <!-- Recipe categories for Spinner -->
     <string-array name="recipe_categories">
         <item>Camilan</item>
         <item>Kue</item>
@@ -6,6 +7,8 @@
         <item>Minuman</item>
         <item>Kuliner</item>
     </string-array>
+
+    <!-- User profile and login -->
     <string name="username_display">Username: </string>
     <string name="hint_username">Masukkan username baru</string>
     <string name="hint_password">Masukkan password baru</string>
@@ -15,17 +18,40 @@
     <string name="request">Permintaan</string>
     <string name="logout">Logout</string>
 
+    <!-- Firebase Web client ID -->
+    <string name="default_web_client_id">YOUR_CLIENT_ID_FROM_FIREBASE</string>
 
-
-
-
+    <!-- Recipe input fields -->
     <string name="hint_recipe_name">Nama Resep</string>
     <string name="hint_description">Deskripsi</string>
     <string name="hint_ingredients">Bahan-bahan</string>
     <string name="hint_steps">Langkah-langkah</string>
     <string name="hint_video_url">URL Video (opsional)</string>
+
+    <!-- UI Elements related to the image preview -->
     <string name="image_preview_desc">Preview Gambar Resep</string>
     <string name="btn_choose_image">Pilih Gambar</string>
     <string name="btn_save_recipe">Simpan Resep</string>
-    <string name="app_name">Project111</string>
+
+
+
+
+
+    <string name="hint_type_message">Type a message</string>
+    <string name="button_send">Send</string>
+    <string name="text_message_deleted">Pesan dihapus</string>
+    <string name="format_time">07:46 AM</string> <!-- contoh default -->
+
+
+
+
+    <!-- App name -->
+    <string name="app_name">insep</string>
+
+    <!-- Aspect Ratios for image cropping -->
+    <string-array name="aspect_ratios">
+        <item>4:3</item>
+        <item>16:9</item>
+        <item>1:1</item>
+    </string-array>
 </resources>

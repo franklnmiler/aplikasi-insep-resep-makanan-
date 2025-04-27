@@ -10,6 +10,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -17,11 +18,13 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -38,24 +41,26 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+// ... (package & imports tetap sama)
+
 public class ProfileActivity extends AppCompatActivity {
 
     private static final String SUPABASE_STORAGE_URL = "https://zwyjincljcwqjyagzwci.supabase.co/storage/v1/object";
     private static final String SUPABASE_BUCKET = "project111";
-    private static final String SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3eWppbmNsamN3cWp5YWd6d2NpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NTQyMTM5MSwiZXhwIjoyMDYwOTk3MzkxfQ.974CVHyzfxfqloQxLUg8AVZJT_gNWYPGjrSHOA2FqSQ"; // WARNING: Don't expose sensitive data in production
+    private static final String SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3eWppbmNsamN3cWp5YWd6d2NpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NTQyMTM5MSwiZXhwIjoyMDYwOTk3MzkxfQ.974CVHyzfxfqloQxLUg8AVZJT_gNWYPGjrSHOA2FqSQ"; // Jangan hardcode di produksi
 
     private ImageView profileImage;
     private EditText editUsername, editPassword, editPhone;
+    private TextView textEmail;
     private Button btnSave, btnLogout, btnHelp, btnRequest;
-
     private Uri imageUri;
-
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
     private DatabaseReference databaseReference;
     private OkHttpClient httpClient = new OkHttpClient();
-
     private ActivityResultLauncher<Intent> imagePickerLauncher;
+    private BottomNavigationView bottomNavigationView;
+    private String userId = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,10 +69,11 @@ public class ProfileActivity extends AppCompatActivity {
 
         initializeViews();
         initializeFirebase();
-        loadUserData();
-        setupButtonActions();
         setupImagePickerLauncher();
-        setupMenuButton();  // Call the setupMenuButton method
+        setupButtonActions();
+        setupMenuButton();
+        setupBottomNavigation();
+        loadUserData();
     }
 
     private void initializeViews() {
@@ -75,10 +81,12 @@ public class ProfileActivity extends AppCompatActivity {
         editUsername = findViewById(R.id.edit_username);
         editPassword = findViewById(R.id.edit_password);
         editPhone = findViewById(R.id.edit_phone);
+        textEmail = findViewById(R.id.text_email);
         btnSave = findViewById(R.id.btn_save);
         btnLogout = findViewById(R.id.btn_logout);
         btnHelp = findViewById(R.id.btn_help);
         btnRequest = findViewById(R.id.btn_request);
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
         sharedPreferences = getSharedPreferences("UserData", MODE_PRIVATE);
         editor = sharedPreferences.edit();
@@ -88,32 +96,53 @@ public class ProfileActivity extends AppCompatActivity {
         databaseReference = FirebaseDatabase.getInstance().getReference("users");
     }
 
-    private void loadUserData() {
-        String username = sharedPreferences.getString("username", ""); // ambil username dari lokal untuk cari di database
+    private void setupBottomNavigation() {
+        bottomNavigationView.setSelectedItemId(R.id.nav_profile);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_menu) {
+                startActivity(new Intent(ProfileActivity.this, MainActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+            } else if (id == R.id.nav_search) {
+                startActivity(new Intent(ProfileActivity.this, TemanActivity.class));
+                overridePendingTransition(0, 0);
+                return true;
+            } else if (id == R.id.nav_profile) {
+                return true;
+            }
+            return false;
+        });
+    }
 
-        if (username.isEmpty()) {
-            Toast.makeText(this, "Username tidak ditemukan.", Toast.LENGTH_SHORT).show();
+    private void loadUserData() {
+        userId = sharedPreferences.getString("userId", "");
+        if (userId.isEmpty()) {
+            Toast.makeText(this, "User ID tidak ditemukan.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        databaseReference.child(username).addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    String fetchedUsername = snapshot.child("username").getValue(String.class);
-                    String fetchedPassword = snapshot.child("password").getValue(String.class);
-                    String fetchedNomorHp = snapshot.child("nomorHp").getValue(String.class);
-                    String fetchedProfileImage = snapshot.child("profileImage").getValue(String.class);
+                    editUsername.setText(snapshot.child("username").getValue(String.class));
+                    editPassword.setText(snapshot.child("password").getValue(String.class));
+                    editPhone.setText(snapshot.child("nomorHp").getValue(String.class));
+                    String email = snapshot.child("email").getValue(String.class);
+                    String profileImageUrl = snapshot.child("profileImage").getValue(String.class);
 
-                    editUsername.setText(fetchedUsername != null ? fetchedUsername : "");
-                    editPassword.setText(fetchedPassword != null ? fetchedPassword : "");
-                    editPhone.setText(fetchedNomorHp != null ? fetchedNomorHp : "");
+                    if (email != null) {
+                        textEmail.setText(email);
+                        editor.putString("email", email); // Simpan ke SharedPreferences
+                        editor.apply();
+                    }
 
-                    if (fetchedProfileImage != null && !fetchedProfileImage.isEmpty()) {
-                        Glide.with(ProfileActivity.this).load(fetchedProfileImage).into(profileImage);
+                    if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+                        Glide.with(ProfileActivity.this).load(profileImageUrl).into(profileImage);
                     }
                 } else {
-                    Toast.makeText(ProfileActivity.this, "Data user tidak ditemukan di database.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ProfileActivity.this, "Data user tidak ditemukan.", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -129,7 +158,7 @@ public class ProfileActivity extends AppCompatActivity {
         btnSave.setOnClickListener(v -> saveProfile());
         btnLogout.setOnClickListener(v -> logout());
         btnHelp.setOnClickListener(v -> openWhatsApp("Halo, saya butuh bantuan."));
-        btnRequest.setOnClickListener(v -> openWhatsApp("Halo, ini info device saya."));
+        btnRequest.setOnClickListener(v -> openWhatsApp("Halo, ini info device saya: " + getDeviceInfo()));
     }
 
     private void setupImagePickerLauncher() {
@@ -151,12 +180,10 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void saveProfile() {
-        saveTextData(); // Simpan data teks ke SharedPreferences dulu
-
+        saveTextData();
         if (imageUri != null) {
             uploadImageAndSaveProfile();
         } else {
-            // Kalau tidak ada gambar baru, pakai URL lama
             String existingImageUrl = sharedPreferences.getString("profileImage", "");
             saveUserData(existingImageUrl);
             Toast.makeText(this, "Profil disimpan tanpa ubah foto.", Toast.LENGTH_SHORT).show();
@@ -208,33 +235,20 @@ public class ProfileActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     progressDialog.dismiss();
-                    runOnUiThread(() -> {
-                        Toast.makeText(ProfileActivity.this, "Gagal upload gambar: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                        String existingImageUrl = sharedPreferences.getString("profileImage", "");
-                        saveUserData(existingImageUrl);
-                        Toast.makeText(ProfileActivity.this, "Profil disimpan tanpa update foto.", Toast.LENGTH_SHORT).show();
-                    });
+                    runOnUiThread(() -> Toast.makeText(ProfileActivity.this, "Gagal upload gambar.", Toast.LENGTH_LONG).show());
                 }
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     progressDialog.dismiss();
                     if (response.isSuccessful()) {
-                        String imageUrl = "https://zwyjincljcwqjyagzwci.supabase.co/storage/v1/object/public/" + SUPABASE_BUCKET + "/" + filename;
-
+                        String imageUrl = SUPABASE_STORAGE_URL + "/public/" + SUPABASE_BUCKET + "/" + filename;
                         editor.putString("profileImage", imageUrl);
                         editor.apply();
-
                         saveUserData(imageUrl);
-
-                        runOnUiThread(() -> Toast.makeText(ProfileActivity.this, "Foto berhasil diunggah dan profil disimpan!", Toast.LENGTH_SHORT).show());
+                        runOnUiThread(() -> Toast.makeText(ProfileActivity.this, "Profil berhasil diperbarui.", Toast.LENGTH_SHORT).show());
                     } else {
-                        runOnUiThread(() -> {
-                            Toast.makeText(ProfileActivity.this, "Upload gagal: " + response.message(), Toast.LENGTH_LONG).show();
-                            String existingImageUrl = sharedPreferences.getString("profileImage", "");
-                            saveUserData(existingImageUrl);
-                            Toast.makeText(ProfileActivity.this, "Profil disimpan tanpa update foto.", Toast.LENGTH_SHORT).show();
-                        });
+                        runOnUiThread(() -> Toast.makeText(ProfileActivity.this, "Upload gagal: " + response.message(), Toast.LENGTH_LONG).show());
                     }
                 }
             });
@@ -242,27 +256,38 @@ public class ProfileActivity extends AppCompatActivity {
         } catch (IOException e) {
             progressDialog.dismiss();
             Toast.makeText(this, "Error saat upload gambar: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            String existingImageUrl = sharedPreferences.getString("profileImage", "");
-            saveUserData(existingImageUrl);
-            Toast.makeText(this, "Profil disimpan tanpa update foto.", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void saveUserData(String imageUrl) {
         HashMap<String, Object> userMap = new HashMap<>();
-        String username = sharedPreferences.getString("username", "");
-        String password = sharedPreferences.getString("password", "");
-        String nomorHp = sharedPreferences.getString("nomorHp", "");
-        String deviceInfo = "Model: " + Build.MODEL + " Brand: " + Build.BRAND + " Product: " + Build.PRODUCT + " Android: " + Build.VERSION.RELEASE;
-
-        userMap.put("username", username);
-        userMap.put("password", password);
-        userMap.put("nomorHp", nomorHp);
+        userMap.put("userId", userId);
+        userMap.put("username", editUsername.getText().toString().trim());
+        userMap.put("password", editPassword.getText().toString().trim());
+        userMap.put("nomorHp", editPhone.getText().toString().trim());
         userMap.put("profileImage", imageUrl);
-        userMap.put("device_info", deviceInfo);
-        userMap.put("userId", username);
+        userMap.put("device_info", getDeviceInfo());
 
-        databaseReference.child(username).setValue(userMap);
+        String existingEmail = sharedPreferences.getString("email", "");
+        if (!existingEmail.isEmpty()) {
+            userMap.put("email", existingEmail);  // Pastikan email tetap disimpan
+        }
+
+        databaseReference.child(userId).setValue(userMap);
+    }
+
+    private void logout() {
+        SharedPreferences preferences = getSharedPreferences("UserData", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.apply();
+
+        FirebaseAuth.getInstance().signOut();
+
+        Intent intent = new Intent(ProfileActivity.this, login.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     private void openWhatsApp(String message) {
@@ -278,48 +303,23 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void logout() {
-        editor.clear();
-        editor.apply();
-        Toast.makeText(this, "Logout berhasil.", Toast.LENGTH_SHORT).show();
-        startActivity(new Intent(this, login.class));
-        finish();
-    }
-
     private String getFileExtension(Uri uri) {
-        if (uri != null) {
-            String extension = MimeTypeMap.getSingleton()
-                    .getExtensionFromMimeType(getContentResolver().getType(uri));
-            return extension != null ? extension : "jpg"; // Default ke jpg kalau gagal baca
-        }
-        return "jpg";
+        return MimeTypeMap.getSingleton().getExtensionFromMimeType(getContentResolver().getType(uri));
     }
 
-    // Adding the new method for menu buttons
+    private String getDeviceInfo() {
+        return "Model: " + Build.MODEL + ", Brand: " + Build.BRAND + ", Android: " + Build.VERSION.RELEASE;
+    }
+
     private void setupMenuButton() {
         Button itemVerification = findViewById(R.id.itemVerification);
         Button itemRiwayat = findViewById(R.id.itemRiwayat);
         Button itemFavorit = findViewById(R.id.itemFavorit);
         Button itemBantuan = findViewById(R.id.itemBantuan);
 
-        itemVerification.setOnClickListener(v -> {
-            Intent intent = new Intent(ProfileActivity.this, VerifikasiActivity.class);
-            startActivity(intent);
-        });
-
-        itemRiwayat.setOnClickListener(v -> {
-            Intent intent = new Intent(ProfileActivity.this, RiwayatActivity.class);
-            startActivity(intent);
-        });
-
-        itemFavorit.setOnClickListener(v -> {
-            Intent intent = new Intent(ProfileActivity.this, FavoriteRecipesActivity.class);
-            startActivity(intent);
-        });
-
-        itemBantuan.setOnClickListener(v -> {
-            Intent intent = new Intent(ProfileActivity.this, BantuanActivity.class);
-            startActivity(intent);
-        });
+        itemVerification.setOnClickListener(v -> startActivity(new Intent(this, VerifikasiActivity.class)));
+        itemRiwayat.setOnClickListener(v -> startActivity(new Intent(this, RiwayatActivity.class)));
+        itemFavorit.setOnClickListener(v -> startActivity(new Intent(this, FavoriteRecipesActivity.class)));
+        itemBantuan.setOnClickListener(v -> startActivity(new Intent(this, BantuanActivity.class)));
     }
 }

@@ -3,47 +3,45 @@ package com.example.project111;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 public class login extends AppCompatActivity {
-    private EditText etUsername, etPassword;
+
+    private EditText etEmail, etPassword;
     private Button btnRegister, btnLogin;
-    private DatabaseReference database;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FirebaseApp.initializeApp(this); // Initialize Firebase
         setContentView(R.layout.activity_login);
 
-        // Initialize views
-        etUsername = findViewById(R.id.etUsername);
+        // Inisialisasi komponen UI
+        etEmail = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
         btnRegister = findViewById(R.id.btnRegister);
 
-        // Initialize Firebase database reference
-        database = FirebaseDatabase.getInstance().getReference("users");
+        // Inisialisasi Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
 
-        // Check login status
+        // Cek status login
         checkLoginStatus();
 
-        // Login button listener
+        // Listener tombol login
         btnLogin.setOnClickListener(view -> loginUser());
 
-        // Register button listener
+        // Listener tombol register
         btnRegister.setOnClickListener(view -> {
             Intent registerIntent = new Intent(getApplicationContext(), register.class);
             startActivity(registerIntent);
@@ -53,56 +51,60 @@ public class login extends AppCompatActivity {
     private void checkLoginStatus() {
         SharedPreferences preferences = getSharedPreferences("UserData", MODE_PRIVATE);
         boolean isLoggedIn = preferences.getBoolean("isLoggedIn", false);
+        String userId = preferences.getString("userId", null);
 
-        if (isLoggedIn) {
-            // User is already logged in, redirect to main activity
-            startActivity(new Intent(login.this, MainActivity.class));
+        if (isLoggedIn && userId != null) {
+            // Sudah login, langsung pindah ke halaman perangkat (device)
+            startActivity(new Intent(login.this, device.class));
             finish();
         }
     }
 
     private void loginUser() {
-        String username = etUsername.getText().toString().trim();
+        String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
 
-        if (username.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Username atau Password tidak boleh kosong", Toast.LENGTH_SHORT).show();
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Email atau Password tidak boleh kosong", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Access the database using the username
-        database.child(username).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    // Get password stored in the database
-                    String dbPassword = snapshot.child("password").getValue(String.class);
-                    if (dbPassword != null && dbPassword.equals(password)) {
-                        // Save login status to SharedPreferences
-                        SharedPreferences preferences = getSharedPreferences("UserData", MODE_PRIVATE);
-                        SharedPreferences.Editor editor = preferences.edit();
-                        editor.putBoolean("isLoggedIn", true);
-                        editor.putString("username", username); // Save username to preferences
-                        editor.apply();
+        // Login menggunakan Firebase Authentication
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        String userId = user != null ? user.getUid() : "";
 
-                        // Redirect to device activity and pass username
-                        Toast.makeText(getApplicationContext(), "Login Berhasil", Toast.LENGTH_SHORT).show();
-                        Intent deviceIntent = new Intent(login.this, device.class);
-                        deviceIntent.putExtra("username", username); // Pass username to device activity
-                        startActivity(deviceIntent);
-                        finish();
+                        // Mengambil username dari Firebase Realtime Database
+                        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
+                        userRef.child("username").get().addOnCompleteListener(usernameTask -> {
+                            if (usernameTask.isSuccessful()) {
+                                String username = usernameTask.getResult().getValue(String.class);
+
+                                // Simpan status login dan userId ke SharedPreferences
+                                SharedPreferences preferences = getSharedPreferences("UserData", MODE_PRIVATE);
+                                SharedPreferences.Editor editor = preferences.edit();
+                                editor.putBoolean("isLoggedIn", true); // Menyimpan status login
+                                editor.putString("userId", userId);    // Menyimpan userId
+                                editor.putString("username", username); // Menyimpan username
+                                editor.apply();
+
+                                Toast.makeText(getApplicationContext(), "Login Berhasil", Toast.LENGTH_SHORT).show();
+
+                                // Pindah ke halaman device setelah login berhasil
+                                Intent deviceIntent = new Intent(login.this, device.class);
+                                startActivity(deviceIntent);
+                                finish();
+                            } else {
+                                // Menampilkan pesan jika gagal mengambil username
+                                Toast.makeText(getApplicationContext(), "Gagal mengambil data pengguna", Toast.LENGTH_LONG).show();
+                            }
+                        });
                     } else {
-                        Toast.makeText(getApplicationContext(), "Password Salah", Toast.LENGTH_SHORT).show();
+                        // Menampilkan pesan jika login gagal
+                        Toast.makeText(getApplicationContext(), "Login Gagal: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                     }
-                } else {
-                    Toast.makeText(getApplicationContext(), "Data Tidak Ditemukan", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getApplicationContext(), "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+                });
     }
 }
