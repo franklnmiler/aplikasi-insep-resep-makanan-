@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- Latar belakang dengan efek overlay -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/overlay_background" />
+
+    <!-- Konten utama -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp"
+        android:background="?android:attr/selectableItemBackground">
+
+        <TextView
+            android:id="@+id/tv_reply_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Username"
+            android:textStyle="bold"
+            android:textSize="9sp"
+            android:maxLines="1"
+            android:ellipsize="end" />  <!-- Handle overflow of long names -->
+
+        <TextView
+            android:id="@+id/tv_reply_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reply text here"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tv_reply_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Timestamp"
+            android:textSize="8sp"
+            android:textColor="@android:color/darker_gray" />
+
+        <Button
+            android:id="@+id/btn_sub_reply"
+            android:layout_width="68dp"
+            android:layout_height="37dp"
+            android:layout_marginBottom="10dp"
+            android:background="@android:color/transparent"
+            android:elevation="8dp"
+            android:ellipsize="none"
+            android:maxLines="1"
+            android:paddingStart="4dp"
+            android:paddingTop="2dp"
+            android:paddingEnd="4dp"
+            android:paddingBottom="2dp"
+            android:stateListAnimator="@null"
+            android:text="Balas"
+            android:textColor="@android:color/black"
+            android:textSize="17sp" />
+
+
+
+        <!-- Layout for sub-replies (where sub-replies will be added dynamically) -->
+        <LinearLayout
+            android:id="@+id/layout_sub_replies"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="20dp"
+            android:paddingTop="10dp" />
+    </LinearLayout>
+
+</FrameLayout>

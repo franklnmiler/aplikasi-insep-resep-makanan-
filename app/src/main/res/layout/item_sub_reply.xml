@@ -1,0 +1,47 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/tv_sub_reply_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="9sp"
+        android:text="Sub-Reply User Name" />
+
+    <TextView
+        android:id="@+id/tv_sub_reply_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:text="Sub-Reply text" />
+
+    <TextView
+        android:id="@+id/tv_sub_reply_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="8sp"
+        android:text="Sub-Reply timestamp" />
+
+    <!-- Tombol untuk sub-reply -->
+    <Button
+        android:id="@+id/btn_sub_reply"
+        android:layout_width="wrap_content"
+        android:layout_height="37dp"
+        android:layout_marginBottom="10dp"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingStart="6dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="6dp"
+        android:paddingBottom="4dp"
+        android:stateListAnimator="@null"
+        android:text="tidak bisa di balas"
+        android:textColor="@android:color/black"
+        android:textSize="9sp" />
+
+</LinearLayout>

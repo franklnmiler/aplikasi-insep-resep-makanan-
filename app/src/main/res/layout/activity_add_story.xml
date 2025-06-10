@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center_horizontal"
+    tools:context=".AddStoryActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Your Story"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="24dp" />
+
+    <ImageView
+        android:id="@+id/story_media_preview"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="#E0E0E0"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_image_placeholder"
+        android:contentDescription="Story Media Preview"
+        android:layout_marginBottom="16dp" />
+
+    <VideoView
+        android:id="@+id/story_video_preview"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:visibility="gone"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btn_choose_story_media"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Choose Image/Video"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btn_upload_story"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Upload Story" />
+
+</LinearLayout>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <!-- Gradient warna lebih cerah -->
+            <gradient
+                android:angle="0"
+                android:startColor="#FDFDF7"
+                android:centerColor="#FFF9E6"
+                android:endColor="#FFF2CC"
+                android:type="linear" />
+
+            <!-- Sudut melengkung -->
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+</layer-list>

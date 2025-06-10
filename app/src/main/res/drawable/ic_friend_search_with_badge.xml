@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape xmlns:android="http://schemas.android.com/apk/res/android">
+            <solid android:color="#FFFFFF"/>
+            <size android:width="48dp" android:height="48dp"/>
+            <corners android:radius="24dp"/>
+        </shape>
+    </item>
+    <item android:right="4dp" android:top="4dp">
+        <bitmap android:src="@drawable/ic_eye" android:gravity="center"/>
+    </item>
+    <item android:right="0dp" android:top="0dp">
+        <shape xmlns:android="http://schemas.android.com/apk/res/android">
+            <solid android:color="#FF0000"/>
+            <size android:width="16dp" android:height="16dp"/>
+            <corners android:radius="8dp"/>
+        </shape>
+    </item>
+</layer-list>

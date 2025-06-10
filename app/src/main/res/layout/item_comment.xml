@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="7dp"
+    android:background="#FFEEEEEE"> <!-- Background agak gelap -->
+
+    <TextView
+        android:id="@+id/tv_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Username" />
+
+    <TextView
+        android:id="@+id/tv_comment_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Comment text" />
+
+    <TextView
+        android:id="@+id/tv_comment_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Timestamp" />
+
+    <!-- Reply Button -->
+    <Button
+        android:id="@+id/btn_reply"
+        android:layout_width="76dp"
+        android:layout_height="37dp"
+        android:layout_marginBottom="12dp"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingStart="6dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="6dp"
+        android:paddingBottom="4dp"
+        android:stateListAnimator="@null"
+        android:text="Balas"
+        android:textColor="@android:color/black"
+        android:textSize="15sp" />
+
+    <!-- View Replies Button -->
+    <Button
+        android:id="@+id/btn_view_replies"
+        android:layout_width="276dp"
+        android:layout_height="36dp"
+        android:layout_marginBottom="8dp"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingStart="6dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="6dp"
+        android:paddingBottom="4dp"
+        android:stateListAnimator="@null"
+        android:text="Lihat Balasan"
+        android:textColor="@android:color/black"
+        android:textSize="15sp" />
+
+    <!-- Container for replies -->
+    <LinearLayout
+        android:id="@+id/layout_replies"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+</LinearLayout>

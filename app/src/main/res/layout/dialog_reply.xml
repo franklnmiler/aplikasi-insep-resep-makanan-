@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Display the username of the user replying -->
+
+
+    <!-- EditText for the user to input the reply -->
+    <EditText
+        android:id="@+id/et_reply_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="Type your reply here"
+        android:inputType="textMultiLine"
+        android:lines="4"
+        android:padding="8dp" />
+
+    <!-- Button to send the reply -->
+
+</LinearLayout>
